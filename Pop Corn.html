@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Popcorn Purchase</title>
+  <link rel="stylesheet" href="style3.css">
+</head>
+<body>
+  <div class="container">
+    <img src="pp2.png" alt="Popcorn" class="popcorn-image">
+    <h1>Buy Your 🍿</h1>
+    <div class="form-group">
+      <label for="size">Select Size:</label>
+      <select id="size">
+        <option value="none" selected disabled>Select</option>
+        <option value="xl">Extra Large</option>
+        <option value="l">Large</option>
+        <option value="m">Medium</option>
+        <option value="s">Small</option>
+      </select>
+    </div>
+    <div class="price-section">
+      <h2 id="price">Price: ₹0</h2>
+    </div>
+    <button id="purchaseBtn" disabled>Purchase</button>
+
+    <!-- Purchase Log -->
+    <div class="log-section">
+      <h3>Sales Summary</h3>
+      <p>Total Purchases: <span id="totalPurchases">0</span></p>
+      <ul>
+        <li>Extra Large: <span id="xlCount">0</span></li>
+        <li>Large: <span id="lCount">0</span></li>
+        <li>Medium: <span id="mCount">0</span></li>
+        <li>Small: <span id="sCount">0</span></li>
+      </ul>
+    </div>
+  </div>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
