@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Dashboard</title>
+  <style>
+    body {
+      font-family: Arial;
+      padding: 20px;
+      background-color: #f9f9f9;
+    }
+
+    .dashboard {
+      display: flex;
+      gap: 2rem;
+      flex-wrap: wrap;
+      margin-bottom: 2rem;
+    }
+
+    .card {
+      padding: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      min-width: 200px;
+      background-color: white;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Popcorn Sales Dashboard</h1>
+  <div class="dashboard">
+    <div class="card" id="totalRevenue">Total Revenue: ₹0</div>
+    <div class="card" id="smallSold">Small: 0</div>
+    <div class="card" id="mediumSold">Medium: 0</div>
+    <div class="card" id="largeSold">Large: 0</div>
+    <div class="card" id="xtralargeSold">XtraLarge: 0</div>
+  </div>
+
+  <h2>Recent Orders</h2>
+  <ul id="orderList"></ul>
+
+  <script type="module">
+    // Firebase imports
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+
+    // Your Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyAw6HT97ZkgHRi8NM2FPtutOhEjbEeGOzg",
+      authDomain: "pop-corn-app.firebaseapp.com",
+      projectId: "pop-corn-app",
+      storageBucket: "pop-corn-app.firebasestorage.app",
+      messagingSenderId: "301620007109",
+      appId: "1:301620007109:web:5b3fa6442db4ca1f9da0ac"
+    };
+
+    // Init Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Fetch and display data
+    async function loadSalesData() {
+      const ordersCol = collection(db, "purchases");
+      const snapshot = await getDocs(ordersCol);
+      let revenue = 0, small = 0, medium = 0, large = 0 ,xtralarge=0;
+
+      const orderList = document.getElementById("orderList");
+      orderList.innerHTML = "";
+
+      snapshot.forEach(doc => {
+        const data = doc.data();
+
+        const sizeMap = { s: "small", m: "medium", l: "large",xl:"xtralarge" };
+        const rawSize = (data.size || "").toLowerCase().trim();
+        const size = sizeMap[rawSize] || rawSize;
+
+        let price = Number(data.price);
+        if (isNaN(price)) {
+          price = size === "small" ? 50 : size === "medium" ? 100 : size === "large" ? 200 : size === "xtralarge" ? 250 : 0;
+        }
+        const timestamp = data.timestamp ? new Date(data.timestamp) : null;
+        const displayTime = data.formattedTime || (timestamp ? timestamp.toLocaleString() : "Unknown");
+
+        // Skip if size is invalid or price is missing
+        if (!["small", "medium", "large","xtralarge"].includes(size) || isNaN(price)) return;
+
+        revenue += price;
+        if (size === "small") small++;
+        else if (size === "medium") medium++;
+        else if (size === "large") large++;
+        else if(size === "xtralarge") xtralarge++;
+
+        const li = document.createElement("li");
+        li.textContent = `${size.toUpperCase()} - ₹${price} at ${displayTime}`;
+        orderList.appendChild(li);
+      });
+
+
+      // Update dashboard
+      document.getElementById("totalRevenue").textContent = `Total Revenue: ₹${revenue}`;
+      document.getElementById("smallSold").textContent = `Small: ${small}`;
+      document.getElementById("mediumSold").textContent = `Medium: ${medium}`;
+      document.getElementById("largeSold").textContent = `Large: ${large}`;
+      document.getElementById("xtralargeSold").textContent = `XtraLarge: ${xtralarge}`;
+    }
+
+    loadSalesData();
+  </script>
+</body>
+
+</html>

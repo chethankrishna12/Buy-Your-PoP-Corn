@@ -41,36 +41,21 @@ const sales = {
   s: 0,
 };
 
-// Load saved data from LocalStorage on page load
-function loadSalesData() {
-  const savedSales = localStorage.getItem("salesData");
-  const savedTotal = localStorage.getItem("totalPurchases");
 
-  if (savedSales) {
-    Object.assign(sales, JSON.parse(savedSales));
-  }
 
-  if (savedTotal) {
-    totalPurchases = parseInt(savedTotal, 10);
-  }
 
-  updateSalesSummary();
-}
 
-// Save sales data to LocalStorage
-function saveSalesData() {
-  localStorage.setItem("salesData", JSON.stringify(sales));
-  localStorage.setItem("totalPurchases", totalPurchases);
-}
 
-// Update the sales summary section in the DOM
-function updateSalesSummary() {
-  document.getElementById("totalPurchases").textContent = totalPurchases;
-  document.getElementById("xlCount").textContent = sales.xl;
-  document.getElementById("lCount").textContent = sales.l;
-  document.getElementById("mCount").textContent = sales.m;
-  document.getElementById("sCount").textContent = sales.s;
-}
+
+
+
+
+
+
+
+
+
+
 
 // Handle size selection and update price
 sizeSelect.addEventListener("change", () => {
@@ -92,31 +77,33 @@ sizeSelect.addEventListener("change", () => {
 });
 
 // Handle purchase and update sales data
-purchaseBtn.addEventListener("click", async() => {
+purchaseBtn.addEventListener("click", async () => {
   const size = sizeSelect.value;
 
-  if (size && sales[size] !== undefined) {
-    sales[size]++;
-    totalPurchases++;
-
-    saveSalesData(); // Save updated data to LocalStorage
-    updateSalesSummary(); // Update the UI with new data
-
-    try {
-      await addDoc(collection(db, "purchases"), {
-        size: size,
-        timestamp: new Date().toISOString()
-      });
-      console.log("Purchase saved to Firestore");
-    } catch (e) {
-      console.error("Error adding purchase to Firestore: ", e);
-    }
-
-    alert(`Thank you for purchasing a ${size.toUpperCase()} popcorn!`);
-  } else {
+  if (!size) {
     alert("Please select a valid size.");
+    return;
+  }
+
+  try {
+await addDoc(collection(db, "purchases"), {
+  size: size,
+  timestamp: new Date().toISOString(),
+  formattedTime: new Date().toLocaleString("en-IN", {
+    dateStyle: "medium",
+    timeStyle: "short",
+    timeZone: "Asia/Kolkata"
+  })
+});
+
+    console.log("Purchase saved to Firestore");
+    alert(`Thank you for purchasing a ${size.toUpperCase()} popcorn!`);
+  } catch (e) {
+    console.error("Error adding purchase to Firestore: ", e);
+    alert("Something went wrong. Please try again.");
   }
 });
+
 
 // Load sales data when the page loads
 loadSalesData();
