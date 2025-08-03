@@ -1,0 +1,80 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Popcorn Purchase</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+  <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+  <div class="container">
+    <img src="pp2.png" alt="Popcorn" class="popcorn-image">
+    <h1>Buy Your 🍿</h1>
+    <div class="form-group">
+      <label for="size">Select Size:</label>
+      <select id="size">
+        <option value="none" selected disabled>Select</option>
+        <option value="xl">Extra Large</option>
+        <option value="l">Large</option>
+        <option value="m">Medium</option>
+        <option value="s">Small</option>
+      </select>
+    </div>
+    <div class="price-section">
+      <h2 id="price">Price: ₹0</h2>
+    </div>
+    <button id="purchaseBtn" class="custom-purchase-button">
+      <span id="purchaseBtnText">Purchase</span>
+      <div id="purchaseSpinner" class="spinner-border spinner-border-sm ms-2 d-none" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </button>
+
+
+
+    <!-- Purchase Log -->
+    <div class="log-section">
+      <h3>Popcorn Price List</h3>
+      <ul>
+        <li>Extra Large: ₹250</li>
+        <li>Large: ₹200</li>
+        <li>Medium: ₹100</li>
+        <li>Small: ₹50</li>
+      </ul>
+    </div>
+  </div>
+  <div id="toast" class="toast-message"></div>
+
+  <div class="position-fixed top-0 end-0 p-3" style="z-index: 9999">
+    <div id="liveToast" class="toast align-items-center text-white bg-success border-0" role="alert"
+      aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body" id="toastMessage">
+          <!-- Toast message goes here -->
+        </div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+          aria-label="Close"></button>
+      </div>
+    </div>
+  </div>
+
+  <div id="loadingSpinner" class="position-fixed top-50 start-50 translate-middle d-none z-3">
+    <div class="spinner-border text-warning" role="status" style="width: 3rem; height: 3rem;">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script type="module" src="app.js"></script>
+</body>
+
+</html>

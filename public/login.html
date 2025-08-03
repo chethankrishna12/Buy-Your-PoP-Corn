@@ -1,0 +1,45 @@
+<!-- login.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Login</title>
+</head>
+<body>
+  <h2>Admin Login</h2>
+  <input type="email" id="email" placeholder="Email" required>
+  <input type="password" id="password" placeholder="Password" required>
+  <button id="loginBtn">Login</button>
+  <p id="error" style="color:red;"></p>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAw6HT97ZkgHRi8NM2FPtutOhEjbEeGOzg",
+      authDomain: "pop-corn-app.firebaseapp.com",
+      projectId: "pop-corn-app",
+      storageBucket: "pop-corn-app.firebasestorage.app",
+      messagingSenderId: "301620007109",
+      appId: "1:301620007109:web:5b3fa6442db4ca1f9da0ac"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    document.getElementById("loginBtn").addEventListener("click", async () => {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      const errorEl = document.getElementById("error");
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        window.location.href = "admin.html"; // redirect to dashboard
+      } catch (error) {
+        errorEl.textContent = "Invalid email or password";
+      }
+    });
+  </script>
+</body>
+</html>

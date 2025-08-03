@@ -1,4 +1,4 @@
-
+// app.js
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
 import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
@@ -85,25 +85,73 @@ purchaseBtn.addEventListener("click", async () => {
     return;
   }
 
-  try {
-await addDoc(collection(db, "purchases"), {
-  size: size,
-  timestamp: new Date().toISOString(),
-  formattedTime: new Date().toLocaleString("en-IN", {
-    dateStyle: "medium",
-    timeStyle: "short",
-    timeZone: "Asia/Kolkata"
-  })
+  // Show toast or success message immediately
+  showToast(`Thank you for purchasing a ${size.toUpperCase()} popcorn!`);
+
+  // Show spinner in button (optional)
+  button.innerHTML = `
+    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+    Saving...
+  `;
+  purchaseBtn.disabled = true;
+
+  // Save to Firestore in background
+  addDoc(collection(db, "purchases"), {
+    size: size,
+    timestamp: new Date().toISOString(),
+    formattedTime: new Date().toLocaleString("en-IN", {
+      dateStyle: "medium",
+      timeStyle: "short",
+      timeZone: "Asia/Kolkata"
+    })
+  }).then(() => {
+    console.log("Purchase saved to Firestore");
+  }).catch((e) => {
+    console.error("Error adding purchase to Firestore: ", e);
+    showToast("Something went wrong while saving.");
+  }).finally(() => {
+    // Reset button
+
+    purchaseBtn.innerHTML = "Purchase";
+    purchaseBtn.disabled = false;
+  });
 });
 
-    console.log("Purchase saved to Firestore");
-    alert(`Thank you for purchasing a ${size.toUpperCase()} popcorn!`);
-  } catch (e) {
-    console.error("Error adding purchase to Firestore: ", e);
-    alert("Something went wrong. Please try again.");
+
+
+
+// Load sales data when the page loads
+window.addEventListener("DOMContentLoaded", () => {
+  if (window.location.pathname.includes("admin.html")) {
+    loadSalesData();
   }
 });
 
 
-// Load sales data when the page loads
-loadSalesData();
+function showToast(message, isError = false) {
+  const toastElement = document.getElementById("liveToast");
+  const toastBody = document.getElementById("toastMessage");
+
+  toastBody.textContent = message;
+
+  // Toggle color based on message type
+  toastElement.classList.remove("bg-success", "bg-danger");
+  toastElement.classList.add(isError ? "bg-danger" : "bg-success");
+
+  const toast = new bootstrap.Toast(toastElement, {
+    delay: 2000,   // Auto-dismiss after 3 seconds (3000ms)
+    autohide: true
+  });
+  toast.show();
+}
+
+function showButtonSpinner() {
+  document.getElementById("purchaseSpinner").classList.remove("d-none");
+  document.getElementById("purchaseBtn").disabled = true;
+}
+
+function hideButtonSpinner() {
+  document.getElementById("purchaseSpinner").classList.add("d-none");
+  document.getElementById("purchaseBtn").disabled = false;
+}
+

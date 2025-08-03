@@ -106,20 +106,28 @@ body {
     font-weight: 700;
   }
   
-  button {
-    background: linear-gradient(135deg, #ff6f61, #ff3f3f);
-    color: #fff;
-    border: none;
-    padding: 12px 25px;
-    border-radius: 30px;
-    cursor: pointer;
-    font-size: 18px;
-    font-weight: 600;
-    transition: transform 0.2s, background 0.3s;
-    z-index: 1;
-    position: relative;
-  }
-  
+.custom-purchase-button {
+  background: linear-gradient(135deg, #ff6f61, #ff3f3f);
+  color: #fff;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 30px;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 600;
+  transition: transform 0.2s, background 0.3s;
+  z-index: 1;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.custom-purchase-button:hover {
+  transform: scale(1.05);
+  background: linear-gradient(135deg, #ff8a75, #ff5959);
+}
+
+
   button:disabled {
     background: #cccccc;
     cursor: not-allowed;
@@ -167,3 +175,26 @@ body {
   .log-section li {
     margin: 5px 0;
   }
+
+  .toast-message {
+  visibility: hidden;
+  min-width: 250px;
+  margin-left: -125px;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  border-radius: 8px;
+  padding: 16px;
+  position: fixed;
+  z-index: 9999;
+  left: 50%;
+  bottom: 30px;
+  font-size: 16px;
+  transition: visibility 0s, opacity 0.5s linear;
+  opacity: 0;
+}
+
+.toast-message.show {
+  visibility: visible;
+  opacity: 1;
+}

@@ -1,3 +1,4 @@
+<!-- admin.html -->
 <!DOCTYPE html>
 <html lang="en">
 
@@ -6,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Popcorn Sales Dashboard</title>
 
-  
+
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
@@ -137,6 +138,16 @@
     </table>
 
   </div>
+  <!-- Global Full-Screen Loader -->
+  <div id="globalLoader"
+    class="position-fixed top-0 start-0 w-100 h-100 bg-white bg-opacity-75 d-flex justify-content-center align-items-center"
+    style="z-index: 1055; display: none;">
+    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
@@ -153,6 +164,15 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    // Loader utilities
+    function showGlobalLoader() {
+      document.getElementById("globalLoader").style.display = "flex";
+    }
+
+    function hideGlobalLoader() {
+      document.getElementById("globalLoader").style.display = "none";
+    }
+
 
     const filterDateInput = document.getElementById("filterDate");
     const orderList = document.getElementById("orderList");
@@ -162,74 +182,82 @@
     }
 
     async function loadSalesData(selectedDate) {
-      const ordersCol = collection(db, "purchases");
-      const q = query(ordersCol, orderBy("timestamp", "desc"));
-      const snapshot = await getDocs(q);
+      showGlobalLoader();
+      await new Promise(resolve => setTimeout(resolve, 3000)); // ⏳ simulate delay
 
-      let revenue = 0, small = 0, medium = 0, large = 0, xtralarge = 0;
-      orderList.innerHTML = "";
+      try {
+        const ordersCol = collection(db, "purchases");
+        const q = query(ordersCol, orderBy("timestamp", "desc"));
+        const snapshot = await getDocs(q);
 
-      let hasOrders = false;
+        let revenue = 0, small = 0, medium = 0, large = 0, xtralarge = 0;
+        orderList.innerHTML = "";
 
-      snapshot.forEach(doc => {
-        const data = doc.data();
-        const timestamp = data.timestamp ? new Date(data.timestamp) : null;
-        if (!timestamp) return;
+        let hasOrders = false;
 
-        if (
-          timestamp.getFullYear() === selectedDate.getFullYear() &&
-          timestamp.getMonth() === selectedDate.getMonth() &&
-          timestamp.getDate() === selectedDate.getDate()
-        ) {
-          hasOrders = true;
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          const timestamp = data.timestamp ? new Date(data.timestamp) : null;
+          if (!timestamp) return;
 
-          const sizeMap = { s: "small", m: "medium", l: "large", xl: "xtralarge" };
-          const rawSize = (data.size || "").toLowerCase().trim();
-          const size = sizeMap[rawSize] || rawSize;
+          if (
+            timestamp.getFullYear() === selectedDate.getFullYear() &&
+            timestamp.getMonth() === selectedDate.getMonth() &&
+            timestamp.getDate() === selectedDate.getDate()
+          ) {
+            hasOrders = true;
 
-          let price = Number(data.price);
-          if (isNaN(price)) {
-            price = size === "small" ? 50 :
-              size === "medium" ? 100 :
-                size === "large" ? 200 :
-                  size === "xtralarge" ? 250 : 0;
+            const sizeMap = { s: "small", m: "medium", l: "large", xl: "xtralarge" };
+            const rawSize = (data.size || "").toLowerCase().trim();
+            const size = sizeMap[rawSize] || rawSize;
+
+            let price = Number(data.price);
+            if (isNaN(price)) {
+              price = size === "small" ? 50 :
+                size === "medium" ? 100 :
+                  size === "large" ? 200 :
+                    size === "xtralarge" ? 250 : 0;
+            }
+
+            if (!["small", "medium", "large", "xtralarge"].includes(size) || isNaN(price)) return;
+
+            revenue += price;
+            if (size === "small") small++;
+            else if (size === "medium") medium++;
+            else if (size === "large") large++;
+            else if (size === "xtralarge") xtralarge++;
+
+            const displayTime = data.formattedTime || timestamp.toLocaleString();
+            const row = document.createElement("tr");
+
+            const sizeCell = document.createElement("td");
+            sizeCell.textContent = size.toUpperCase();
+            row.appendChild(sizeCell);
+
+            const priceCell = document.createElement("td");
+            priceCell.textContent = price;
+            row.appendChild(priceCell);
+
+            const timeCell = document.createElement("td");
+            timeCell.textContent = displayTime;
+            row.appendChild(timeCell);
+
+            orderList.appendChild(row);
+
           }
+        });
 
-          if (!["small", "medium", "large", "xtralarge"].includes(size) || isNaN(price)) return;
+        document.getElementById("noDataMessage").style.display = hasOrders ? "none" : "block";
 
-          revenue += price;
-          if (size === "small") small++;
-          else if (size === "medium") medium++;
-          else if (size === "large") large++;
-          else if (size === "xtralarge") xtralarge++;
-
-          const displayTime = data.formattedTime || timestamp.toLocaleString();
-          const row = document.createElement("tr");
-
-          const sizeCell = document.createElement("td");
-          sizeCell.textContent = size.toUpperCase();
-          row.appendChild(sizeCell);
-
-          const priceCell = document.createElement("td");
-          priceCell.textContent = price;
-          row.appendChild(priceCell);
-
-          const timeCell = document.createElement("td");
-          timeCell.textContent = displayTime;
-          row.appendChild(timeCell);
-
-          orderList.appendChild(row);
-
-        }
-      });
-
-      document.getElementById("noDataMessage").style.display = hasOrders ? "none" : "block";
-
-      document.getElementById("totalRevenue").textContent = `₹${revenue}`;
-      document.getElementById("smallSold").textContent = small;
-      document.getElementById("mediumSold").textContent = medium;
-      document.getElementById("largeSold").textContent = large;
-      document.getElementById("xtralargeSold").textContent = xtralarge;
+        document.getElementById("totalRevenue").textContent = `₹${revenue}`;
+        document.getElementById("smallSold").textContent = small;
+        document.getElementById("mediumSold").textContent = medium;
+        document.getElementById("largeSold").textContent = large;
+        document.getElementById("xtralargeSold").textContent = xtralarge;
+      }
+      finally {
+        hideGlobalLoader(); // ✅ Hide loader
+      }
     }
 
     // Set default to today and load data
