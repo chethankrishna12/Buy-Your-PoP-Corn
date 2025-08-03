@@ -89,7 +89,7 @@ purchaseBtn.addEventListener("click", async () => {
   showToast(`Thank you for purchasing a ${size.toUpperCase()} popcorn!`);
 
   // Show spinner in button (optional)
-  button.innerHTML = `
+  purchaseBtn.innerHTML = `
     <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
     Saving...
   `;
@@ -111,7 +111,7 @@ purchaseBtn.addEventListener("click", async () => {
     showToast("Something went wrong while saving.");
   }).finally(() => {
     // Reset button
-
+    
     purchaseBtn.innerHTML = "Purchase";
     purchaseBtn.disabled = false;
   });
